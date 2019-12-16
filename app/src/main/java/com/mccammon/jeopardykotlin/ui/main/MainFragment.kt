@@ -53,11 +53,11 @@ class MainFragment : Fragment() {
         view?.setOnClickListener {
             val repo = JServiceRepository(ApiFactory.J_SERVICE_API)
             val scope = CoroutineScope(coroutineContext)
-            var clue: Clue? = null
+            var clue: Clue?
             scope.launch {
                 clue = repo.getClue()
+                viewModel.setAnswer(clue?.answer)
             }
-            viewModel.setAnswer(clue?.answer)
         }
         // TODO: Use the ViewModel
     }
