@@ -7,59 +7,58 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
 import com.mccammon.jeopardykotlin.R
 import com.mccammon.jeopardykotlin.databinding.MainFragmentBinding
 import com.mccammon.jeopardykotlin.service.ApiFactory
 import com.mccammon.jeopardykotlin.service.Clue
 import com.mccammon.jeopardykotlin.service.JServiceRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
-class MainFragment : Fragment() {
-
-    val parentJob = Job()
-    val coroutineContext: CoroutineContext get() = parentJob + Dispatchers.Default
+class MainFragment : Fragment(), CoroutineScope {
 
     companion object {
         fun newInstance() = MainFragment()
     }
 
+    private val parentJob = Job()
     private lateinit var viewModel: MainViewModel
+    private val repo = JServiceRepository(ApiFactory.J_SERVICE_API)
+    override val coroutineContext: CoroutineContext get() = parentJob + Dispatchers.Main
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val repo = JServiceRepository(ApiFactory.J_SERVICE_API)
-        val scope = CoroutineScope(coroutineContext)
-        var clue: Clue? = null
-        scope.launch {
-            clue = repo.getClue()
-        }
-        viewModel = MainViewModel(clue)
+        load()
         val mainFragmentBinding: MainFragmentBinding = DataBindingUtil.inflate(inflater, viewModel.getLayoutId(),
             container, false)
         mainFragmentBinding.viewModel = viewModel
         return mainFragmentBinding.root
     }
 
+    fun load() {
+        runBlocking {
+            val clue: Clue? = repo.getClue()
+            viewModel = MainViewModel(clue)
+        }
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         val view: TextView? = activity?.findViewById(R.id.message)
         view?.setOnClickListener {
-            val repo = JServiceRepository(ApiFactory.J_SERVICE_API)
-            val scope = CoroutineScope(coroutineContext)
             var clue: Clue?
-            scope.launch {
+            launch {
                 clue = repo.getClue()
                 viewModel.setAnswer(clue?.answer)
             }
         }
-        // TODO: Use the ViewModel
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        parentJob.cancel()
     }
 
 }
