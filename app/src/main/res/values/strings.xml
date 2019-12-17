@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Jeopardy Kotlin</string>
+    <string name="type_your_answer">Type you answer</string>
+    <string name="submit_answer">SUBMIT ANSWER</string>
+    <string name="skip_clue">SKIP CLUE</string>
+    <string name="show_answer">SHOW ANSWER</string>
+    <string name="close">Close</string>
+    <string name="showing_answer">Showing answer…</string>
+    <string name="correct">Correct!</string>
+    <string name="incorrect">Incorrect!</string>
 </resources>

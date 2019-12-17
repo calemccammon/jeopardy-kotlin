@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import com.mccammon.jeopardykotlin.AnswerMatcher
 import com.mccammon.jeopardykotlin.R
 import com.mccammon.jeopardykotlin.databinding.MainFragmentBinding
 import com.mccammon.jeopardykotlin.service.ApiFactory
@@ -15,7 +17,7 @@ import com.mccammon.jeopardykotlin.service.JServiceRepository
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
-class MainFragment : Fragment(), CoroutineScope {
+class MainFragment : Fragment(), CoroutineScope, InputListener {
 
     companion object {
         fun newInstance() = MainFragment()
@@ -40,25 +42,54 @@ class MainFragment : Fragment(), CoroutineScope {
     fun load() {
         runBlocking {
             val clue: Clue? = repo.getClue()
-            viewModel = MainViewModel(clue)
-        }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        val view: TextView? = activity?.findViewById(R.id.message)
-        view?.setOnClickListener {
-            var clue: Clue?
-            launch {
-                clue = repo.getClue()
-                viewModel.setAnswer(clue?.answer)
-            }
+            viewModel = MainViewModel(clue, this@MainFragment)
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         parentJob.cancel()
+    }
+
+    override fun onSkip() {
+        var clue: Clue?
+        launch {
+            clue = repo.getClue()
+            viewModel.setCategory(clue?.category?.title)
+            viewModel.setQuestion(clue?.question)
+            viewModel.setAnswer(clue?.answer)
+            viewModel.setSubmittedAnswer("")
+        }
+    }
+
+    override fun onSubmit(submittedAnswer: String) {
+        val isCorrect = AnswerMatcher.isCorrect(submittedAnswer, viewModel.getAnswer())
+        val duration = Toast.LENGTH_SHORT
+        val text = if(isCorrect) {
+            R.string.correct
+        } else {
+            R.string.incorrect
+        }
+        val toast = Toast.makeText(context, text, duration)
+        toast.show()
+        if(isCorrect) {
+            onSkip()
+        }
+    }
+
+    override fun onShow() {
+        val alert = context?.let { AlertDialog.Builder(it) }
+        alert?.setTitle(R.string.showing_answer)
+        alert?.setMessage(viewModel.getAnswer())
+        alert?.setCancelable(true)
+        alert?.setOnDismissListener {
+            onSkip()
+        }
+        alert?.setNeutralButton(R.string.close) { p0, _ ->
+            p0.dismiss()
+        }
+        alert?.create()
+        alert?.show()
     }
 
 }
