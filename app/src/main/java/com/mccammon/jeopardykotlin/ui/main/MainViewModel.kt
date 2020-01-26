@@ -3,9 +3,8 @@ package com.mccammon.jeopardykotlin.ui.main
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.KeyEvent
-import android.view.View.OnClickListener
+import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.databinding.Bindable
@@ -17,18 +16,6 @@ import com.mccammon.jeopardykotlin.service.Clue
 
 @BindingMethods (
     BindingMethod(
-        type = Button::class,
-        attribute = "skipClickListener",
-        method = "setOnClickListener"
-    ), BindingMethod(
-        type = Button::class,
-        attribute = "showClickListener",
-        method = "setOnClickListener"
-    ), BindingMethod(
-        type = Button::class,
-        attribute = "submitClickListener",
-        method = "setOnClickListener"
-    ), BindingMethod(
         type = EditText::class,
         attribute = "editTextListener",
         method = "setOnEditorActionListener"
@@ -44,9 +31,6 @@ class MainViewModel(clue: Clue?, private val inputListener: InputListener) : Obs
     private var question: String? = null
     private var category: String? = null
     private var submittedAnswer = ""
-    private var skipClickListener: OnClickListener? = null
-    private var showClickListener: OnClickListener? = null
-    private var submitClickListener: OnClickListener? = null
     private var editTextListener: TextView.OnEditorActionListener? = null
     private var textWatcher: TextWatcher? = null
 
@@ -54,9 +38,6 @@ class MainViewModel(clue: Clue?, private val inputListener: InputListener) : Obs
         setAnswer(clue?.answer)
         setQuestion(clue?.question)
         setCategory(clue?.category?.title)
-        setSkipClickListener()
-        setShowClickListener()
-        setSubmitClickListener()
         setTextWatcher()
         setSubmittedAnswer(submittedAnswer)
         setEditTextListener()
@@ -90,6 +71,20 @@ class MainViewModel(clue: Clue?, private val inputListener: InputListener) : Obs
         notifyPropertyChanged(BR.submittedAnswer)
     }
 
+    fun submit(view: View) {
+        if(submittedAnswer.isNotEmpty()) {
+            inputListener.onSubmit(submittedAnswer)
+        }
+    }
+
+    fun skip(view: View) {
+        inputListener.onSkip()
+    }
+
+    fun show(view: View) {
+        inputListener.onShow()
+    }
+
     private fun setEditTextListener() {
         editTextListener = object: TextView.OnEditorActionListener {
             override fun onEditorAction(p0: TextView?, p1: Int, p2: KeyEvent?): Boolean {
@@ -106,42 +101,6 @@ class MainViewModel(clue: Clue?, private val inputListener: InputListener) : Obs
     @Bindable
     fun getEditTextListener(): TextView.OnEditorActionListener? {
         return editTextListener
-    }
-
-    private fun setSkipClickListener() {
-        skipClickListener = OnClickListener {
-            inputListener.onSkip()
-        }
-        notifyPropertyChanged(BR.skipClickListener)
-    }
-
-    private fun setSubmitClickListener() {
-        submitClickListener = OnClickListener {
-            inputListener.onSubmit(submittedAnswer)
-        }
-        notifyPropertyChanged(BR.submitClickListener)
-    }
-
-    @Bindable
-    fun getSubmitClickListener(): OnClickListener? {
-        return submitClickListener
-    }
-
-    private fun setShowClickListener() {
-        showClickListener = OnClickListener {
-            inputListener.onShow()
-        }
-        notifyPropertyChanged(BR.showClickListener)
-    }
-
-    @Bindable
-    fun getShowClickListener(): OnClickListener? {
-        return showClickListener
-    }
-
-    @Bindable
-    fun getSkipClickListener(): OnClickListener? {
-        return skipClickListener
     }
 
     @Bindable

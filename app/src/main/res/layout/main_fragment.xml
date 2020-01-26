@@ -58,13 +58,15 @@
         </RelativeLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/question_controls"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="36dp"
             android:layout_marginBottom="24dp"
+            app:layout_constrainedHeight="true"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/clue_container"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <EditText
                 android:id="@+id/edit_text"
@@ -75,9 +77,9 @@
                 android:importantForAutofill="no"
                 android:inputType="text"
                 android:imeOptions="actionDone"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:editTextListener="@{viewModel.editTextListener}"
                 app:textWatcher="@{viewModel.textWatcher}"/>
 
@@ -86,30 +88,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/submit_answer"
+                android:onClick="@{viewModel::submit}"
                 app:layout_constraintStart_toStartOf="@id/edit_text"
                 app:layout_constraintEnd_toEndOf="@id/edit_text"
-                app:layout_constraintTop_toBottomOf="@id/edit_text"
-                app:submitClickListener="@{viewModel.submitClickListener}"/>
+                app:layout_constraintTop_toBottomOf="@id/edit_text"/>
 
             <Button
                 android:id="@+id/skip_clue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/skip_clue"
+                android:onClick="@{viewModel::skip}"
                 app:layout_constraintStart_toStartOf="@id/submit_answer"
                 app:layout_constraintEnd_toEndOf="@id/submit_answer"
-                app:layout_constraintTop_toBottomOf="@id/submit_answer"
-                app:skipClickListener="@{viewModel.skipClickListener}"/>
+                app:layout_constraintTop_toBottomOf="@id/submit_answer"/>
 
             <Button
                 android:id="@+id/show_answer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/show_answer"
+                android:onClick="@{viewModel::show}"
                 app:layout_constraintStart_toStartOf="@id/skip_clue"
                 app:layout_constraintEnd_toEndOf="@id/skip_clue"
-                app:layout_constraintTop_toBottomOf="@id/skip_clue"
-                app:showClickListener="@{viewModel.showClickListener}"/>
+                app:layout_constraintTop_toBottomOf="@id/skip_clue"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
